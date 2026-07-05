@@ -1329,10 +1329,10 @@ An algorithm has O(2ⁿ) time complexity when the running time doubles with ever
 ### Visualization
 ```mermaid
 xychart-beta
-    title "Quadratic Time Complexity O(n²)"
-    x-axis "Input Size (n)" [0,2,4,6,8,10]
-    y-axis "Time" 0 --> 100
-    line [0,4,16,36,64,100]
+    title "Exponential Time Complexity — O(2ⁿ)"
+    x-axis "Input Size (n)" [0,1,2,3,4,5,6,7,8]
+    y-axis "Operations" 0 --> 260
+    line [1,2,4,8,16,32,64,128,256]
 ```
 
 ### Real-life Analogy
