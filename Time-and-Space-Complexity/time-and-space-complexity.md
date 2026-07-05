@@ -1787,12 +1787,18 @@ If the recursive work dominates, the total cost is driven by the number of recur
 
 ### Decision Tree for Applying the Theorem
 
-```text
-1. Compute c = log_b a
-2. Compare f(n) with n^c
-3. If f(n) is polynomially smaller -> Case 1
-4. If f(n) is the same order -> Case 2
-5. If f(n) is polynomially larger -> Case 3
+```mermaid
+flowchart TD
+    A["Compute<br/>c = log_b(a)"]
+    A --> B["Compare<br/>f(n) with n^c"]
+
+    B --> C{"Relationship"}
+
+    C -->|"Polynomially Smaller"| D["Case 1<br/>Θ(n^c)"]
+
+    C -->|"Same Order"| E["Case 2<br/>Θ(n^c log n)"]
+
+    C -->|"Polynomially Larger<br/>+ Regularity Condition"| F["Case 3<br/>Θ(f(n))"]
 ```
 
 ### Case 1: When Recursive Work Dominates
@@ -1967,15 +1973,30 @@ def fib_optimized(n):
 
 ### Visual Comparison
 
-```text
-Naive Recursion:
-fib(5)
-├── fib(4)
-│   ├── fib(3)
-│   │   ├── fib(2)
-│   │   │   ├── fib(1)
-│   │   │   └── fib(0)
-...
+```mermaid
+graph TD
+    A["fib(5)"]
+
+    A --> B["fib(4)"]
+    A --> C["fib(3)"]
+
+    B --> D["fib(3)"]
+    B --> E["fib(2)"]
+
+    C --> F["fib(2)"]
+    C --> G["fib(1)"]
+
+    D --> H["fib(2)"]
+    D --> I["fib(1)"]
+
+    E --> J["fib(1)"]
+    E --> K["fib(0)"]
+
+    F --> L["fib(1)"]
+    F --> M["fib(0)"]
+
+    H --> N["fib(1)"]
+    H --> O["fib(0)"]
 ```
 
 ```text
@@ -2541,32 +2562,156 @@ graph TD
    Time = O(2^n)
 
 
-## Master Theorem
 
-### Case 1: Larger Recursive Work
-If f(n) = O(n^(log_b a - ε)), then T(n) = Θ(n^(log_b a))
+## 📖 Master Theorem Cases
 
-**Example:** T(n) = 3T(n/3) + n²
-- a=3, b=3, log_b a = 1
-- f(n) = n² = Ω(n^(1+1))
-- Case 3 applies
+---
 
-### Case 2: Equal Work
-If f(n) = Θ(n^(log_b a)), then T(n) = Θ(n^(log_b a) * log n)
+### 🔹 Case 1: Recursive Work Dominates
 
-**Example:** T(n) = 2T(n/2) + n
-- a=2, b=2, log_b a = 1
-- f(n) = n = Θ(n^1)
-- T(n) = Θ(n log n)
+When the work done by the recursive calls grows faster than the work outside recursion.
 
-### Case 3: Larger Non-Recursive Work
-If f(n) = Ω(n^(log_b a + ε)) and a*f(n/b) ≤ c*f(n) for some c < 1, then T(n) = Θ(f(n))
+**Condition**
 
-**Example:** T(n) = 2T(n/2) + n²
-- a=2, b=2, log_b a = 1
-- f(n) = n² = Ω(n^(1+1))
-- Condition holds: 2*(n/2)² = n²/2 ≤ c*n²
-- T(n) = Θ(n²)
+```math
+f(n) = O\left(n^{\log_b a-\varepsilon}\right), \quad \varepsilon > 0
+```
+
+**Result**
+
+```math
+T(n)=\Theta\left(n^{\log_b a}\right)
+```
+
+#### ✅ Example
+
+```text
+T(n) = 4T(n/2) + n
+```
+
+| Parameter | Value |
+|-----------|-------|
+| a | 4 |
+| b | 2 |
+| log₂4 | 2 |
+| f(n) | n = O(n^(2−1)) |
+
+**Therefore**
+
+```text
+T(n) = Θ(n²)
+```
+
+> 💡 **Reason:** Recursive calls perform significantly more work than the extra work `f(n)`.
+
+---
+
+### 🔹 Case 2: Equal Work
+
+When the recursive work and non-recursive work grow at the same rate.
+
+**Condition**
+
+```math
+f(n)=\Theta\left(n^{\log_b a}\right)
+```
+
+**Result**
+
+```math
+T(n)=\Theta\left(n^{\log_b a}\log n\right)
+```
+
+#### ✅ Example
+
+```text
+T(n)=2T(n/2)+n
+```
+
+| Parameter | Value |
+|-----------|-------|
+| a | 2 |
+| b | 2 |
+| log₂2 | 1 |
+| f(n) | n = Θ(n¹) |
+
+**Therefore**
+
+```text
+T(n)=Θ(n log n)
+```
+
+> 💡 **Reason:** Every level of the recursion tree performs the same amount of work.
+
+---
+
+### 🔹 Case 3: Non-Recursive Work Dominates
+
+When the work outside recursion grows faster than the recursive work.
+
+**Condition**
+
+```math
+f(n)=\Omega\left(n^{\log_b a+\varepsilon}\right), \quad \varepsilon > 0
+```
+
+and the **Regularity Condition** holds:
+
+```math
+a \cdot f(n/b) \le c \cdot f(n), \quad c < 1
+```
+
+**Result**
+
+```math
+T(n)=\Theta(f(n))
+```
+
+#### ✅ Example
+
+```text
+T(n)=2T(n/2)+n²
+```
+
+| Parameter | Value |
+|-----------|-------|
+| a | 2 |
+| b | 2 |
+| log₂2 | 1 |
+| f(n) | n² = Ω(n^(1+1)) |
+
+**Regularity Check**
+
+```text
+2 × (n/2)²
+= 2 × (n²/4)
+= n²/2
+≤ c·n²
+```
+
+Choose
+
+```text
+c = 1/2
+```
+
+**Therefore**
+
+```text
+T(n)=Θ(n²)
+```
+
+> 💡 **Reason:** The non-recursive work `f(n)` dominates the total running time.
+
+---
+
+## 🎯 Quick Summary
+
+| Case | Compare `f(n)` with `n^(log_b a)` | Time Complexity |
+|:----:|----------------------------------|-----------------|
+| **1** | Smaller | **Θ(n^(log_b a))** |
+| **2** | Equal | **Θ(n^(log_b a) log n)** |
+| **3** | Larger | **Θ(f(n))** |
 
 ## Examples
 
